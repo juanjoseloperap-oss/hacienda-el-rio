@@ -1,0 +1,324 @@
+<!DOCTYPE html>
+<html lang="es">
+<head>
+  <meta charset="UTF-8" />
+  <meta name="viewport" content="width=device-width, initial-scale=1.0" />
+  <title>Hacienda El Río · Campo</title>
+  <link rel="stylesheet" href="./campo.css" />
+</head>
+<body>
+  <div class="layout">
+    <header class="header">
+      <div class="header__top">
+        <div>
+          <p class="eyebrow">Hacienda El Río</p>
+          <h1 class="title">Campo</h1>
+          <p class="subtitle">Registro práctico para báscula, jornadas y movimientos de finca.</p>
+        </div>
+        <div class="header__status">
+          <span class="status-dot"></span>
+          <span>Operación activa</span>
+        </div>
+      </div>
+
+      <section class="summary-grid">
+        <article class="summary-card">
+          <span class="summary-label">Inventario actual</span>
+          <strong class="summary-value">200</strong>
+          <small class="summary-note">Animales en ceba</small>
+        </article>
+
+        <article class="summary-card">
+          <span class="summary-label">Pesajes hoy</span>
+          <strong class="summary-value" id="pesajesHoy">0</strong>
+          <small class="summary-note">Jornada de báscula</small>
+        </article>
+
+        <article class="summary-card">
+          <span class="summary-label">Rotaciones</span>
+          <strong class="summary-value">2</strong>
+          <small class="summary-note">Pendientes de revisar</small>
+        </article>
+
+        <article class="summary-card">
+          <span class="summary-label">Sanidad</span>
+          <strong class="summary-value">Al día</strong>
+          <small class="summary-note">Último ciclo cargado</small>
+        </article>
+      </section>
+    </header>
+
+    <main class="main">
+      <section class="actions">
+        <button class="action-tab active" data-tab="bascula">
+          <span class="action-tab__label">Báscula</span>
+          <span class="action-tab__hint">Peso + destino</span>
+        </button>
+
+        <button class="action-tab" data-tab="sanidad">
+          <span class="action-tab__label">Sanidad</span>
+          <span class="action-tab__hint">Jornada rápida</span>
+        </button>
+
+        <button class="action-tab" data-tab="potreros">
+          <span class="action-tab__label">Potreros</span>
+          <span class="action-tab__hint">Mover lote</span>
+        </button>
+
+        <button class="action-tab" data-tab="insumos">
+          <span class="action-tab__label">Insumos</span>
+          <span class="action-tab__hint">Entrada / salida</span>
+        </button>
+      </section>
+
+      <section class="panel active" id="bascula">
+        <div class="panel__header">
+          <div>
+            <p class="panel__eyebrow">Registro principal</p>
+            <h2 class="panel__title">Báscula</h2>
+          </div>
+          <span class="panel__badge">1 sola acción</span>
+        </div>
+
+        <p class="panel__description">
+          El mayordomo solo registra la chapeta, el peso y para dónde va el animal después de la báscula.
+        </p>
+
+        <div class="form-grid">
+          <div class="field field--full">
+            <label for="chapeta">Chapeta / arete</label>
+            <input type="text" id="chapeta" placeholder="Ej. 1842" />
+          </div>
+
+          <div class="field field--full">
+            <label for="peso">Peso (kg)</label>
+            <input type="number" id="peso" placeholder="Ej. 326" />
+          </div>
+
+          <div class="field">
+            <label for="origen">Sale de</label>
+            <select id="origen">
+              <option value="">Selecciona origen</option>
+              <option>Corral Báscula</option>
+              <option>Corral Manejo</option>
+              <option>Potrero Alto</option>
+              <option>Potrero Bajo</option>
+            </select>
+          </div>
+
+          <div class="field">
+            <label for="destino">Va para</label>
+            <select id="destino">
+              <option value="">Selecciona destino</option>
+              <option>Potrero Alto</option>
+              <option>Potrero Bajo</option>
+              <option>Potrero La Loma</option>
+              <option>Corral Manejo</option>
+            </select>
+          </div>
+
+          <div class="field field--full">
+            <label for="notaBascula">Observación</label>
+            <textarea id="notaBascula" placeholder="Opcional: rezagado, golpeado, observación visual..."></textarea>
+          </div>
+        </div>
+
+        <div class="panel__footer">
+          <button class="primary-btn" id="guardarBascula">Guardar registro completo</button>
+        </div>
+      </section>
+
+      <section class="panel" id="sanidad">
+        <div class="panel__header">
+          <div>
+            <p class="panel__eyebrow">Trabajo por jornada</p>
+            <h2 class="panel__title">Sanidad</h2>
+          </div>
+          <span class="panel__badge">Masivo</span>
+        </div>
+
+        <p class="panel__description">
+          Para vacunación, desparasitación o tratamiento por grupo, sin perder tiempo llenando pantallas innecesarias.
+        </p>
+
+        <div class="form-grid">
+          <div class="field">
+            <label for="eventoSanidad">Evento</label>
+            <select id="eventoSanidad">
+              <option value="">Selecciona evento</option>
+              <option>Vacunación</option>
+              <option>Desparasitación</option>
+              <option>Vitaminas</option>
+              <option>Tratamiento</option>
+            </select>
+          </div>
+
+          <div class="field">
+            <label for="productoSanidad">Producto</label>
+            <input type="text" id="productoSanidad" placeholder="Ej. Aftosa, ivermectina..." />
+          </div>
+
+          <div class="field">
+            <label for="dosisSanidad">Dosis</label>
+            <input type="text" id="dosisSanidad" placeholder="Ej. 5 ml" />
+          </div>
+
+          <div class="field">
+            <label for="cantidadSanidad">Cantidad de animales</label>
+            <input type="number" id="cantidadSanidad" placeholder="Ej. 18" />
+          </div>
+
+          <div class="field field--full">
+            <label for="zonaSanidad">Zona / potrero</label>
+            <select id="zonaSanidad">
+              <option value="">Selecciona zona</option>
+              <option>Potrero Alto</option>
+              <option>Potrero Bajo</option>
+              <option>Potrero La Loma</option>
+              <option>Corral Manejo</option>
+            </select>
+          </div>
+
+          <div class="field field--full">
+            <label for="notaSanidad">Observación</label>
+            <textarea id="notaSanidad" placeholder="Opcional"></textarea>
+          </div>
+        </div>
+
+        <div class="panel__footer">
+          <button class="primary-btn" id="guardarSanidad">Guardar jornada sanitaria</button>
+        </div>
+      </section>
+
+      <section class="panel" id="potreros">
+        <div class="panel__header">
+          <div>
+            <p class="panel__eyebrow">Rotación</p>
+            <h2 class="panel__title">Movimiento de lote</h2>
+          </div>
+          <span class="panel__badge">Rápido</span>
+        </div>
+
+        <p class="panel__description">
+          Mueve grupos entre potreros con el mínimo de pasos posible.
+        </p>
+
+        <div class="form-grid">
+          <div class="field">
+            <label for="desdePotrero">Desde</label>
+            <select id="desdePotrero">
+              <option value="">Selecciona origen</option>
+              <option>Potrero Alto</option>
+              <option>Potrero Bajo</option>
+              <option>Potrero La Loma</option>
+            </select>
+          </div>
+
+          <div class="field">
+            <label for="haciaPotrero">Hacia</label>
+            <select id="haciaPotrero">
+              <option value="">Selecciona destino</option>
+              <option>Potrero Alto</option>
+              <option>Potrero Bajo</option>
+              <option>Potrero La Loma</option>
+            </select>
+          </div>
+
+          <div class="field field--full">
+            <label for="cantidadMovimiento">Cantidad de animales</label>
+            <input type="number" id="cantidadMovimiento" placeholder="Ej. 22" />
+          </div>
+
+          <div class="field field--full">
+            <label for="notaMovimiento">Observación</label>
+            <textarea id="notaMovimiento" placeholder="Opcional: se rota por descanso de potrero, por comida, por manejo..."></textarea>
+          </div>
+        </div>
+
+        <div class="panel__footer">
+          <button class="primary-btn" id="guardarMovimiento">Guardar movimiento</button>
+        </div>
+      </section>
+
+      <section class="panel" id="insumos">
+        <div class="panel__header">
+          <div>
+            <p class="panel__eyebrow">Control operativo</p>
+            <h2 class="panel__title">Insumos</h2>
+          </div>
+          <span class="panel__badge">Simple</span>
+        </div>
+
+        <p class="panel__description">
+          Registra compras o salidas de sal, heno, medicina o concentrado sin enredar a nadie.
+        </p>
+
+        <div class="form-grid">
+          <div class="field">
+            <label for="tipoInsumo">Tipo</label>
+            <select id="tipoInsumo">
+              <option value="">Selecciona tipo</option>
+              <option>Entrada</option>
+              <option>Salida</option>
+            </select>
+          </div>
+
+          <div class="field">
+            <label for="nombreInsumo">Insumo</label>
+            <select id="nombreInsumo">
+              <option value="">Selecciona insumo</option>
+              <option>Sal mineralizada</option>
+              <option>Heno</option>
+              <option>Medicamento</option>
+              <option>Melaza</option>
+              <option>Concentrado</option>
+            </select>
+          </div>
+
+          <div class="field">
+            <label for="cantidadInsumo">Cantidad</label>
+            <input type="number" id="cantidadInsumo" placeholder="Ej. 4" />
+          </div>
+
+          <div class="field">
+            <label for="unidadInsumo">Unidad</label>
+            <input type="text" id="unidadInsumo" placeholder="Ej. bultos" />
+          </div>
+
+          <div class="field field--full">
+            <label for="valorInsumo">Valor total</label>
+            <input type="number" id="valorInsumo" placeholder="Ej. 420000" />
+          </div>
+
+          <div class="field field--full">
+            <label for="notaInsumo">Observación</label>
+            <textarea id="notaInsumo" placeholder="Opcional"></textarea>
+          </div>
+        </div>
+
+        <div class="panel__footer">
+          <button class="primary-btn" id="guardarInsumo">Guardar insumo</button>
+        </div>
+      </section>
+
+      <section class="activity">
+        <div class="activity__header">
+          <div>
+            <p class="panel__eyebrow">Seguimiento</p>
+            <h2 class="panel__title panel__title--small">Actividad reciente</h2>
+          </div>
+        </div>
+
+        <div id="actividadLista" class="activity-list">
+          <article class="activity-item">
+            <strong>Sin registros todavía</strong>
+            <span>Lo último guardado en campo aparecerá aquí.</span>
+          </article>
+        </div>
+      </section>
+    </main>
+  </div>
+
+  <script src="./campo.js"></script>
+</body>
+</html>
