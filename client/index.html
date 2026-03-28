@@ -1,0 +1,177 @@
+<!DOCTYPE html>
+<html lang="es">
+<head>
+  <meta charset="UTF-8" />
+  <meta name="viewport" content="width=device-width, initial-scale=1.0" />
+  <meta name="theme-color" content="#0f172a" />
+  <title>Hacienda El Río</title>
+  <link rel="manifest" href="/manifest.json" />
+  <link rel="stylesheet" href="/styles.css" />
+</head>
+<body>
+  <div id="app">
+    <section id="loginView" class="screen screen-center">
+      <div class="card auth-card">
+        <h1>Hacienda El Río</h1>
+        <p class="muted">Sistema móvil de gestión ganadera</p>
+        <form id="loginForm" class="stack-sm">
+          <input type="email" name="email" placeholder="Correo" value="admin@elrio.com" required />
+          <input type="password" name="password" placeholder="Contraseña" value="Admin123*" required />
+          <button type="submit">Entrar</button>
+        </form>
+        <small class="muted">Usuario de prueba: admin@elrio.com / Admin123*</small>
+      </div>
+    </section>
+
+    <section id="mainView" class="screen hidden">
+      <header class="topbar">
+        <div>
+          <strong>El Río</strong>
+          <div id="userLabel" class="muted small"></div>
+        </div>
+        <div class="topbar-actions">
+          <span id="syncStatus" class="pill offline">offline</span>
+          <button id="logoutBtn" class="secondary">Salir</button>
+        </div>
+      </header>
+
+      <main class="content">
+        <section id="dashboardSection" class="card section">
+          <div class="section-header">
+            <h2>Resumen del hato</h2>
+            <div class="row gap-sm">
+              <button id="downloadPdf">PDF</button>
+              <button id="downloadExcel" class="secondary">Excel</button>
+            </div>
+          </div>
+          <div id="dashboardCards" class="grid-2"></div>
+          <div id="dashboardLists" class="stack-sm"></div>
+        </section>
+
+        <section class="card section">
+          <div class="section-header"><h2>Registro rápido</h2></div>
+          <div class="tabbar">
+            <button class="tab active" data-tab="animals">Animal</button>
+            <button class="tab" data-tab="weights">Peso</button>
+            <button class="tab" data-tab="health">Sanidad</button>
+            <button class="tab" data-tab="movements">Movimiento</button>
+            <button class="tab" data-tab="transactions">Transacción</button>
+            <button class="tab" data-tab="reproduction">Reproducción</button>
+            <button class="tab" data-tab="supplies">Insumo</button>
+            <button class="tab" data-tab="users">Usuario</button>
+          </div>
+
+          <div id="formsContainer">
+            <form id="animalsForm" class="stack-sm form-panel">
+              <input name="animal_code" placeholder="Código único / arete" required />
+              <input name="animal_name" placeholder="Nombre opcional" />
+              <select name="sex" required><option value="">Sexo</option><option>female</option><option>male</option></select>
+              <input name="birth_date" type="date" required />
+              <select name="identification_type" required><option value="">Identificación</option><option>individual</option><option>lot</option></select>
+              <select name="current_category" required><option value="">Categoría</option><option>cow</option><option>bull</option><option>heifer</option><option>calf</option><option>steer</option></select>
+              <input name="breed" placeholder="Raza" />
+              <input name="mother_code" placeholder="Código madre" />
+              <input name="father_code" placeholder="Código padre" />
+              <button type="submit">Guardar animal</button>
+            </form>
+
+            <form id="weightsForm" class="stack-sm form-panel hidden">
+              <input name="animal_code" placeholder="Código animal" required />
+              <input name="weight_kg" type="number" step="0.1" placeholder="Peso kg" required />
+              <input name="weighed_at" type="date" required />
+              <textarea name="notes" placeholder="Notas"></textarea>
+              <button type="submit">Guardar pesaje</button>
+            </form>
+
+            <form id="healthForm" class="stack-sm form-panel hidden">
+              <input name="animal_code" placeholder="Código animal" required />
+              <select name="event_type" required><option value="">Evento</option><option>vaccine</option><option>treatment</option><option>disease</option><option>procedure</option></select>
+              <input name="diagnosis" placeholder="Diagnóstico" />
+              <input name="treatment" placeholder="Tratamiento" />
+              <input name="medicine_name" placeholder="Medicamento" />
+              <input name="dose" placeholder="Dosis" />
+              <input name="event_date" type="date" required />
+              <input name="next_due_date" type="date" />
+              <textarea name="notes" placeholder="Notas"></textarea>
+              <button type="submit">Guardar sanidad</button>
+            </form>
+
+            <form id="movementsForm" class="stack-sm form-panel hidden">
+              <input name="animal_code" placeholder="Código animal" required />
+              <select name="to_location_id" id="movementLocation" required></select>
+              <input name="moved_at" type="date" required />
+              <textarea name="reason" placeholder="Motivo"></textarea>
+              <button type="submit">Guardar movimiento</button>
+            </form>
+
+            <form id="transactionsForm" class="stack-sm form-panel hidden">
+              <select name="transaction_type" required><option value="">Tipo</option><option>purchase</option><option>sale</option><option>internal</option></select>
+              <input name="animal_code" placeholder="Código animal (si aplica)" />
+              <input name="quantity" type="number" placeholder="Cantidad" value="1" required />
+              <input name="unit_price" type="number" step="0.01" placeholder="Precio unitario" />
+              <input name="total_amount" type="number" step="0.01" placeholder="Valor total" />
+              <input name="transaction_date" type="date" required />
+              <input name="counterpart" placeholder="Proveedor / comprador" />
+              <textarea name="notes" placeholder="Notas"></textarea>
+              <button type="submit">Guardar transacción</button>
+            </form>
+
+            <form id="reproductionForm" class="stack-sm form-panel hidden">
+              <select name="event_type" required><option value="">Evento</option><option>mating</option><option>pregnancy_check</option><option>birth</option></select>
+              <input name="female_code" placeholder="Hembra" required />
+              <input name="male_code" placeholder="Macho" />
+              <input name="calf_code" placeholder="Cría" />
+              <input name="event_date" type="date" required />
+              <input name="expected_birth_date" type="date" />
+              <input name="result" placeholder="Resultado" />
+              <textarea name="notes" placeholder="Notas"></textarea>
+              <button type="submit">Guardar reproducción</button>
+            </form>
+
+            <form id="suppliesForm" class="stack-sm form-panel hidden">
+              <input name="item_name" placeholder="Nombre del insumo" required />
+              <select name="item_type" required><option value="">Tipo</option><option>feed</option><option>medicine</option><option>material</option><option>other</option></select>
+              <input name="unit" placeholder="Unidad (kg, frascos, sacos)" required />
+              <input name="current_stock" type="number" step="0.01" placeholder="Stock actual" required />
+              <input name="reorder_level" type="number" step="0.01" placeholder="Punto mínimo" required />
+              <input name="unit_cost" type="number" step="0.01" placeholder="Costo unitario" />
+              <button type="submit">Guardar insumo</button>
+            </form>
+
+            <form id="usersForm" class="stack-sm form-panel hidden">
+              <input name="full_name" placeholder="Nombre completo" required />
+              <input name="email" type="email" placeholder="Correo" required />
+              <input name="password" type="password" placeholder="Contraseña" required />
+              <select name="role" required><option value="">Rol</option><option>admin</option><option>operario</option><option>tecnico</option></select>
+              <button type="submit">Crear usuario</button>
+            </form>
+          </div>
+        </section>
+
+        <section class="card section">
+          <div class="section-header"><h2>Listados rápidos</h2></div>
+          <div class="tabbar compact">
+            <button class="list-tab active" data-list="animalsList">Animales</button>
+            <button class="list-tab" data-list="weightsList">Pesajes</button>
+            <button class="list-tab" data-list="healthList">Sanidad</button>
+            <button class="list-tab" data-list="movementsList">Movimientos</button>
+            <button class="list-tab" data-list="transactionsList">Transacciones</button>
+            <button class="list-tab" data-list="reproductionList">Reproducción</button>
+            <button class="list-tab" data-list="suppliesList">Insumos</button>
+            <button class="list-tab" data-list="usersList">Usuarios</button>
+          </div>
+          <div id="animalsList" class="list-panel"></div>
+          <div id="weightsList" class="list-panel hidden"></div>
+          <div id="healthList" class="list-panel hidden"></div>
+          <div id="movementsList" class="list-panel hidden"></div>
+          <div id="transactionsList" class="list-panel hidden"></div>
+          <div id="reproductionList" class="list-panel hidden"></div>
+          <div id="suppliesList" class="list-panel hidden"></div>
+          <div id="usersList" class="list-panel hidden"></div>
+        </section>
+      </main>
+    </section>
+  </div>
+  <script src="/app.js"></script>
+</body>
+</html>
