@@ -1,10 +1,14 @@
 document.addEventListener("DOMContentLoaded", () => {
+  const API = "/api";
+  const token = localStorage.getItem("token");
+
   const tabs = document.querySelectorAll(".action-tab");
   const panels = document.querySelectorAll(".panel");
   const activityList = document.getElementById("actividadLista");
   const pesajesHoy = document.getElementById("pesajesHoy");
 
-  let contadorPesajes = 0;
+  let contadorPesajes = Number(pesajesHoy.textContent || 0);
+  let locationsMap = new Map();
 
   function activarTab(tabId) {
     tabs.forEach((tab) => {
@@ -17,9 +21,7 @@ document.addEventListener("DOMContentLoaded", () => {
   }
 
   tabs.forEach((tab) => {
-    tab.addEventListener("click", () => {
-      activarTab(tab.dataset.tab);
-    });
+    tab.addEventListener("click", () => activarTab(tab.dataset.tab));
   });
 
   function horaActual() {
@@ -33,6 +35,7 @@ document.addEventListener("DOMContentLoaded", () => {
 
   function agregarActividad(titulo, detalle) {
     const emptyItem = activityList.querySelector(".activity-item");
+
     if (emptyItem && emptyItem.textContent.includes("Sin registros todavía")) {
       activityList.innerHTML = "";
     }
@@ -60,9 +63,63 @@ document.addEventListener("DOMContentLoaded", () => {
     });
   }
 
+  async function api(path, options = {}) {
+    const headers = {
+      "Content-Type": "application/json",
+      ...(options.headers || {}),
+    };
+
+    if (token) {
+      headers.Authorization = `Bearer ${token}`;
+    }
+
+    const res = await fetch(`${API}${path}`, {
+      ...options,
+      headers,
+    });
+
+    if (!res.ok) {
+      let errorMessage = "Error en la solicitud";
+      try {
+        const errorData = await res.json();
+        errorMessage = errorData.error || errorMessage;
+      } catch (e) {}
+      throw new Error(errorMessage);
+    }
+
+    return res.json();
+  }
+
+  async function cargarUbicaciones() {
+    if (!token) return;
+
+    try {
+      const locations = await api("/locations");
+      locationsMap = new Map(locations.map((l) => [String(l.id), l.name]));
+
+      const origen = document.getElementById("origen");
+      const destino = document.getElementById("destino");
+
+      origen.innerHTML =
+        `<option value="">Automático según ubicación actual</option>` +
+        locations.map((l) => `<option value="${l.id}">${l.name}</option>`).join("");
+
+      destino.innerHTML =
+        `<option value="">Selecciona destino</option>` +
+        locations.map((l) => `<option value="${l.id}">${l.name}</option>`).join("");
+    } catch (error) {
+      alert("No pude cargar las ubicaciones. Revisa si sigues logueado.");
+    }
+  }
+
   const guardarBascula = document.getElementById("guardarBascula");
   if (guardarBascula) {
-    guardarBascula.addEventListener("click", () => {
+    guardarBascula.addEventListener("click", async () => {
+      if (!token) {
+        alert("Primero inicia sesión en la app principal.");
+        return;
+      }
+
       const chapeta = document.getElementById("chapeta").value.trim();
       const peso = document.getElementById("peso").value.trim();
       const origen = document.getElementById("origen").value.trim();
@@ -74,113 +131,38 @@ document.addEventListener("DOMContentLoaded", () => {
         return;
       }
 
-      agregarActividad(
-        `Báscula · Chapeta ${chapeta}`,
-        `${peso} kg · ${origen || "Sin origen"} → ${destino}${nota ? ` · ${nota}` : ""}`
-      );
+      try {
+        await api("/campo/bascula", {
+          method: "POST",
+          body: JSON.stringify({
+            animal_code: chapeta,
+            weight_kg: Number(peso),
+            from_location_id: origen ? Number(origen) : null,
+            to_location_id: Number(destino),
+            weighed_at: new Date().toISOString().slice(0, 10),
+            notes: nota || null,
+          }),
+        });
 
-      contadorPesajes += 1;
-      pesajesHoy.textContent = contadorPesajes;
+        const origenNombre = origen ? (locationsMap.get(origen) || "Sin origen") : "Automático";
+        const destinoNombre = locationsMap.get(destino) || "Destino";
 
-      limpiarCampos(["chapeta", "peso", "origen", "destino", "notaBascula"]);
-      alert("Registro de báscula guardado.");
-    });
-  }
+        agregarActividad(
+          `Báscula · Chapeta ${chapeta}`,
+          `${peso} kg · ${origenNombre} → ${destinoNombre}${nota ? ` · ${nota}` : ""}`
+        );
 
-  const guardarSanidad = document.getElementById("guardarSanidad");
-  if (guardarSanidad) {
-    guardarSanidad.addEventListener("click", () => {
-      const evento = document.getElementById("eventoSanidad").value.trim();
-      const producto = document.getElementById("productoSanidad").value.trim();
-      const dosis = document.getElementById("dosisSanidad").value.trim();
-      const zona = document.getElementById("zonaSanidad").value.trim();
-      const cantidad = document.getElementById("cantidadSanidad").value.trim();
-      const nota = document.getElementById("notaSanidad").value.trim();
+        contadorPesajes += 1;
+        pesajesHoy.textContent = contadorPesajes;
 
-      if (!evento || !zona || !cantidad) {
-        alert("Falta evento, zona o cantidad de animales.");
-        return;
+        limpiarCampos(["chapeta", "peso", "origen", "destino", "notaBascula"]);
+        alert("Registro de báscula guardado en la base.");
+      } catch (error) {
+        alert(error.message);
       }
-
-      agregarActividad(
-        `Sanidad · ${evento}`,
-        `${cantidad} animales · ${zona}${producto ? ` · ${producto}` : ""}${dosis ? ` · ${dosis}` : ""}${nota ? ` · ${nota}` : ""}`
-      );
-
-      limpiarCampos([
-        "eventoSanidad",
-        "productoSanidad",
-        "dosisSanidad",
-        "zonaSanidad",
-        "cantidadSanidad",
-        "notaSanidad",
-      ]);
-
-      alert("Jornada sanitaria guardada.");
-    });
-  }
-
-  const guardarMovimiento = document.getElementById("guardarMovimiento");
-  if (guardarMovimiento) {
-    guardarMovimiento.addEventListener("click", () => {
-      const desde = document.getElementById("desdePotrero").value.trim();
-      const hacia = document.getElementById("haciaPotrero").value.trim();
-      const cantidad = document.getElementById("cantidadMovimiento").value.trim();
-      const nota = document.getElementById("notaMovimiento").value.trim();
-
-      if (!desde || !hacia || !cantidad) {
-        alert("Falta origen, destino o cantidad.");
-        return;
-      }
-
-      agregarActividad(
-        "Movimiento de lote",
-        `${cantidad} animales · ${desde} → ${hacia}${nota ? ` · ${nota}` : ""}`
-      );
-
-      limpiarCampos([
-        "desdePotrero",
-        "haciaPotrero",
-        "cantidadMovimiento",
-        "notaMovimiento",
-      ]);
-
-      alert("Movimiento guardado.");
-    });
-  }
-
-  const guardarInsumo = document.getElementById("guardarInsumo");
-  if (guardarInsumo) {
-    guardarInsumo.addEventListener("click", () => {
-      const tipo = document.getElementById("tipoInsumo").value.trim();
-      const nombre = document.getElementById("nombreInsumo").value.trim();
-      const cantidad = document.getElementById("cantidadInsumo").value.trim();
-      const unidad = document.getElementById("unidadInsumo").value.trim();
-      const valor = document.getElementById("valorInsumo").value.trim();
-      const nota = document.getElementById("notaInsumo").value.trim();
-
-      if (!tipo || !nombre || !cantidad || !valor) {
-        alert("Falta tipo, insumo, cantidad o valor.");
-        return;
-      }
-
-      agregarActividad(
-        `Insumos · ${tipo}`,
-        `${nombre} · ${cantidad} ${unidad || ""} · $${valor}${nota ? ` · ${nota}` : ""}`
-      );
-
-      limpiarCampos([
-        "tipoInsumo",
-        "nombreInsumo",
-        "cantidadInsumo",
-        "unidadInsumo",
-        "valorInsumo",
-        "notaInsumo",
-      ]);
-
-      alert("Registro de insumo guardado.");
     });
   }
 
   activarTab("bascula");
+  cargarUbicaciones();
 });

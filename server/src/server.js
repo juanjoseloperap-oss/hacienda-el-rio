@@ -18,6 +18,7 @@ app.use('/api/locations', require('./routes/locations'));
 app.use('/api/movements', require('./routes/movements'));
 app.use('/api/health', require('./routes/health'));
 app.use('/api/weights', require('./routes/weights'));
+app.use('/api/campo', require('./routes/campo'));
 app.use('/api/transactions', require('./routes/transactions'));
 app.use('/api/reproduction', require('./routes/reproduction'));
 app.use('/api/supplies', require('./routes/supplies'));
